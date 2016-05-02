@@ -1,0 +1,81 @@
+# IGUANA benchmarking
+# with links to store_1 and elds as testing environment
+####################################
+iguana:
+  image: aksw/dld-present-iguana
+  container_name: sp-ts-iguana
+  links:
+    - store_1
+    - loader
+    - elds
+  environment:
+    # syntax to define stores:
+    # STORE_[i]=id=>container-id uri=>[uri|%%store-id%%], type=>[virtuoso], user=>[user], pwd=>[pwd]
+    - STORE_1=uri=>http://%%store_1%%:8890/sparql type=>virtuoso user=>dba pwd=>dba
+    - STORE_2=uri=>http://%%elds%%:80/proxy/virtuoso/sparql type=>elds    
+    #- CONNECTION_ATTEMPTS=30 # increase connection attempts (default=30) if import or store startup needs more time
+  volumes:
+    - ./Results:/iguana/results
+    - ./IGUANA:/iguana/config
+
+
+# Eccenca eLDS
+# with link to store_2 and elds-config volume
+####################################
+elds:
+   # image: docker-registry.eccenca.com/elds-backend
+   image: docker-registry.eccenca.com/eccenca-dataplatform:v5.2.0-pre-42-ge48295b
+   container_name: sp-ts-elds
+   links:
+     - store_2
+   expose:
+     - "80"
+   #ports:
+   # - "9090:80"
+   volumes:
+     - ./eLDS-DataPlatform:/data
+
+
+# Virtuoso Loader and Stores
+####################################
+
+# virtuoso remote loader to import data
+loader:
+  image: aksw/dld-remoteload-virtuoso
+  container_name: sp-ts-loader
+  links:
+    - store_1
+    - store_2
+  expose:
+    - "80"
+  environment:
+    - STORE_1=uri=>http://%%store_1%%:1111 type=>virtuoso user=>dba pwd=>dba
+    - STORE_2=uri=>http://%%store_2%%:1111 type=>virtuoso user=>dba pwd=>dba
+  volumes:
+    - ./Import:/import_store
+
+# store 1 for testing directly
+store_1:
+  image: aksw/dld-store-virtuoso7
+  container_name: sp-ts-virtuoso-1
+  expose:
+    - "8890"
+    - "1111"
+  environment:
+    PWDDBA: "dba"
+  volumes:
+    - ./Import:/import_store
+
+# store 2 for elds
+store_2:
+  image: aksw/dld-store-virtuoso7
+  container_name: sp-ts-virtuoso-2
+  expose:
+    - "8890"
+    - "1111"
+  #ports:
+  #  - "1010:8890"
+  environment:
+    PWDDBA: "dba"
+  volumes:
+    - ./Import:/import_store

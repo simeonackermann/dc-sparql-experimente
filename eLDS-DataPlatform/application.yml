@@ -1,0 +1,85 @@
+#################################################
+# eLDS Auth settings
+#################################################
+
+#
+# AuthOntologyProperties
+#
+authOntology:
+  abox:
+    prefix: "https://ns.eccenca.com/"
+  accessConditions:
+    url: "accessConditions.ttl"
+
+#
+# OAuth2Properties
+#
+oauth2:
+  anonymous: true
+  clients:
+    - id: "eldsClient"
+      secret: "secret"
+      grantTypes:
+        - "authorization_code"
+      redirectUris:
+        - "http://localhost:8080/login"
+
+#
+# AuthenticationProperties
+#
+authentication:
+  inMemory:
+    users:
+      - username: "userA"
+        password: "userA"
+        groups:
+          - "group_user"
+          - "group_user_a"
+      - username: "userB"
+        password: "userB"
+        groups:
+          - "group_user"
+          - "group_user_b"
+
+
+## Cross-Origin Resource Sharing (CORS) settings
+http:
+  cors:
+    enabled: true # default false
+    allowCredentials: true # default, only added if true
+    allowOriginRegex: "^http://localhost:8080$" # default
+    allowHeaders: "Authorization, X-Requested-With, Content-Type, Content-Length" # default
+    allowMethods: "OPTIONS, HEAD, GET, POST, PUT, DELETE" # default
+    exposeHeaders: "WWW-Authenticate"
+    #maxAge: 3600 # default 3600 seconds
+
+#
+# SparqlProxyProperties
+#
+# proxy:
+#   inMemory:
+#     - id: "default"
+#       authorization: REWRITE_FROM
+#       files:
+#         - "instanceModel-sample.trig"
+
+#proxy.inMemory[0].id : "default"
+#proxy.inMemory[0].authorization : REWRITE_FROM
+#proxy.inMemory[0].files[0] : "default.trig"
+#proxy.inMemory[0].files[1] : "aksworg.trig"
+
+#sparqlEndpoints.inMemory[0].id : "default"
+#sparqlEndpoints.inMemory[0].authorization : REWRITE_FROM
+#sparqlEndpoints.inMemory[0].files[0] : "aksworg.trig"
+#sparqlEndpoints.inMemory[0].files[1] : "default.trig"
+
+
+sparqlEndpoints.virtuoso[0].id : "virtuoso"
+sparqlEndpoints.virtuoso[0].authorization : NONE
+sparqlEndpoints.virtuoso[0].host : "store_2"
+sparqlEndpoints.virtuoso[0].port : 1111
+sparqlEndpoints.virtuoso[0].username : "dba"
+sparqlEndpoints.virtuoso[0].password : "dba"
+# sparqlEndpoints.virtuoso[0].cached : true
+
+proxy.endpointIds[0] : "virtuoso"
